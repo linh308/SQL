@@ -1,0 +1,96 @@
+create database Assignment02
+go
+use Assignment02
+
+create table brand(
+MS int not null  primary key ,
+name_brand nvarchar(255),
+address_brand	nvarchar(255),
+phone	decimal,
+)
+go
+create table production(
+ID	integer not null IDENTITY(1,1)  primary key,
+product	nvarchar(255),	
+dess	nvarchar(255),
+p_type	nvarchar(255),
+price	decimal
+)
+go
+create table brand_info(
+MS int not null,
+ID int not null,
+qty int,
+primary key(MS,ID),
+CONSTRAINT bi_id_fk FOREIGN KEY (ID) REFERENCES production (ID),
+CONSTRAINT bi_ms_fk FOREIGN KEY (MS) REFERENCES brand (MS)
+)
+go
+---------------------
+insert into brand(MS,name_brand,address_brand,phone)
+values ('123','Asus','USA','983232');
+
+insert into production(product,dess,p_type,price)
+values ('Máy Tính T450','Máy nhập cũ','Chiếc','1000')
+insert into production(product,dess,p_type,price)
+values ('Điện Thoại Nokia5670','Điện thoại đang hot','Chiếc','200')
+insert into production(product,dess,p_type,price)
+values ('Máy In Samsung 450','Máy in đang loại bình','Chiếc','100')
+
+insert into brand_info(MS,ID,qty)
+values ('123','1','10')
+insert into brand_info(MS,ID,qty)
+values ('123','2','200')
+insert into brand_info(MS,ID,qty)
+values ('123','3','10')
+
+----------Hiển thị tất cả các hãng sản xuất.
+select DISTINCT brand.name_brand
+from brand
+go
+-------- Hiển thị tất cả các sản phẩm
+select DISTINCT production.product
+from production
+go
+-------Liệt kê danh sách hãng theo thứ thự ngược với alphabet của tên
+SELECT   brand.name_brand from brand
+ORDER BY name_brand DESC
+go
+---------Liệt kê danh sách sản phẩm của cửa hàng theo thứ thự giá giảm dần
+SELECT   production.product,production.price from production
+ORDER BY price DESC
+go
+------------Hiển thị thông tin của hãng Asus
+select * from brand
+go
+---------------Liệt kê danh sách sản phẩm còn ít hơn 11 chiếc trong kho
+select production.product,brand_info.qty from production,brand_info
+where production.ID=brand_info.ID
+and brand_info.qty<11
+go
+
+-------------------Liệt kê danh sách sản phẩm của hãng Asus
+select brand.name_brand,production.product from brand,production,brand_info
+where brand.MS=brand_info.MS
+and	brand_info.ID=production.ID
+and brand.name_brand='Asus'
+go
+------------------Số hãng sản phẩm mà cửa hàng có.
+SELECT COUNT(DISTINCT brand.name_brand)
+ FROM brand
+ go
+ ---------------------Số mặt hàng mà cửa hàng bán
+ select count (DISTINCT production.product) from brand,production,brand_info
+where brand.MS=brand_info.MS
+and	brand_info.ID=production.ID
+go
+----------------------Tổng số loại sản phẩm của mỗi hãng có trong cửa hàng
+select brand.name_brand ,count (DISTINCT production.product) from brand,production,brand_info
+where brand.MS=brand_info.MS
+and	brand_info.ID=production.ID
+group by brand.name_brand
+go
+-------------------Viết câu lệnh để thay đổi trường giá tiền của từng mặt hàng là dương(>0).
+ALTER TABLE  production
+ADD   CHECK(price>0)
+go
