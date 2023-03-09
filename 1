@@ -1,0 +1,110 @@
+create database Assignment01
+go
+use Assignment01
+create table customer(
+MS int not null  primary key ,
+name_KH nvarchar(255),
+address_KH	nvarchar(255),
+phone	decimal,
+order_time	datetime
+)
+go
+create table production(
+ID	integer not null IDENTITY(1,1)  primary key,
+product	nvarchar(255),	
+dess	nvarchar(255),
+p_type	nvarchar(255),
+price	decimal
+)
+go
+create table order_product(
+ID	integer not null ,
+MS int not null,
+qty	integer,
+amount	decimal,
+primary key(ID,MS),
+CONSTRAINT op_id_fk FOREIGN KEY (ID) REFERENCES production (ID),
+CONSTRAINT op_ms_fk FOREIGN KEY (MS) REFERENCES customer (MS)
+)
+go
+create table order_customer(
+MS int not null primary key,
+total decimal 
+CONSTRAINT oc_ms_fk FOREIGN KEY (MS) REFERENCES customer (MS)
+)
+go
+
+ALTER TABLE customer
+ALTER COLUMN order_time date;
+-----------------------
+
+INSERT INTO customer (MS,name_kh,address_KH,phone,order_time)
+VALUES ('123', 'Nguyễn Văn An','111 Nguyễn Trãi, Thanh Xuân, Hà Nội' ,'987654321','11/18/09');
+
+insert into production(product,dess,p_type,price)
+values ('Máy TínhT450','Máy nhập mới ','Chiếc','1000');
+insert into production(product,dess,p_type,price)
+values ('Điện Thoại Nokia5670','Điện thoại đang hot ','Chiếc','200');
+insert into production(product,dess,p_type,price)
+values ('Máy In Samsung 450','Máy in đang ế ','Chiếc','100');
+
+insert into order_product(ID,MS,qty,amount)
+values ('1','123','1','1000');
+insert into order_product(ID,MS,qty,amount)
+values ('2','123','2','400');
+insert into order_product(ID,MS,qty,amount)
+values ('3','123','1','100');
+
+insert into order_customer(MS,total)
+values ('123','1500')
+
+---a) Liệt kê danh sách khách hàng đã mua hàng ở cửa hàng.
+select * from customer
+
+----b) Liệt kê danh sách sản phẩm của của hàng
+select * from production
+
+-----c) Liệt kê danh sách các đơn đặt hàng của cửa hàng
+select * from order_product
+
+------Liệt kê danh sách khách hàng theo thứ thự alphabe
+ SELECT * FROM customer
+ORDER BY name_KH asc
+
+------- Liệt kê danh sách sản phẩm của cửa hàng theo thứ thự giá giảm dần
+SELECT * FROM production
+ORDER BY price DESC
+
+---------c) Liệt kê các sản phẩm mà khách hàng Nguyễn Văn An đã mua
+select customer.name_KH,production.product
+from customer,production,order_product
+where customer.MS=order_product.MS
+and    order_product.ID=production.ID
+and		customer.name_KH ='Nguyễn Văn An'
+	
+	-----) Số khách hàng đã mua ở cửa hàng
+	SELECT COUNT(DISTINCT customer.name_KH)
+ FROM customer
+
+ -------Số mặt hàng mà cửa hàng bán
+ select customer.name_KH,production.product,order_product.qty
+from customer,production,order_product
+where customer.MS=order_product.MS
+and    order_product.ID=production.ID
+
+---------Tổng tiền của từng đơn hàng
+select customer.name_KH,order_customer.total
+from customer,order_customer
+where customer.MS=order_customer.MS
+------------Viết câu lệnh để thay đổi trường giá tiền của từng mặt hàng là dương(>0).
+ALTER TABLE  production
+ADD CONSTRAINT value_price 
+CHECK(price > 0);
+------------Viết câu lệnh để thay đổi ngày đặt hàng của khách hàng phải nhỏ hơn ngày hiện tại.
+ALTER TABLE customer
+ALTER COLUMN order_time date;
+ALTER TABLE  customer
+ADD   CHECK(order_time <getdate() );
+-----------Viết câu lệnh để thêm trường ngày xuất hiện trên thị trường của sản phẩm.
+ALTER TABLE production
+ADD date_appearance date;
